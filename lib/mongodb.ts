@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { setServers } from "node:dns/promises";
 
 // Define the connection cache type
 type MongooseCache = {
@@ -15,12 +16,20 @@ declare global {
 const MONGODB_URI = process.env.MONGODB_URI;
 
 // Initialize the cache on the global object to persist across hot reloads in development
-let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 if (!global.mongoose) {
   global.mongoose = cached;
 }
 
+/**
+ * In development, some local ISPs or routers fail to resolve MongoDB Atlas DNS SRV records.
+ * This explicitly sets the Node.js process to use Google and Cloudflare DNS servers
+ * to ensure a reliable connection to the database.
+ */
+if (process.env.NODE_ENV === "development") {
+  setServers(["1.1.1.1", "8.8.8.8"]);
+}
 /**
  * Establishes a connection to MongoDB using Mongoose.
  * Caches the connection to prevent multiple connections during development hot reloads.
