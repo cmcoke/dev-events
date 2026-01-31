@@ -1,12 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import ExploreBtn from "@/components/ExploreBtn";
 import EventCard from "@/components/EventCard";
 import { getEvents } from "@/lib/data/events";
-import { cacheLife } from "next/cache";
 
 const Page = async () => {
-  "use cache";
-  cacheLife("hours");
-
   const events = await getEvents();
 
   return (
